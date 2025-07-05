@@ -1,5 +1,5 @@
 const express = require('express');
-const { bot, users, saveUsers } = require('./bot');
+const { bot, users, saveUsers, sendSignal } = require('./bot');
 
 const app = express();
 
@@ -15,14 +15,15 @@ app.get('/postback', (req, res) => {
 
   if (users[chatId]) {
     users[chatId].confirmed = true;
-    saveUsers();
-    bot.sendMessage(chatId, '🎉 Спасибо за регистрацию! Доступ к сигналам открыт ✅');
-    console.log(`[✅] Пользователь ${chatId} подтверждён через postback`);
   } else {
     users[chatId] = { confirmed: true };
-    saveUsers();
-    bot.sendMessage(chatId, '🎉 Спасибо за регистрацию! Доступ к сигналам открыт ✅');
   }
+  saveUsers();
+
+  bot.sendMessage(chatId, '🎉 Спасибо за регистрацию! Доступ к сигналам открыт ✅');
+  sendSignal(chatId);
+
+  console.log(`[✅] Пользователь ${chatId} подтверждён через postback`);
 
   res.status(200).send('OK');
 });
