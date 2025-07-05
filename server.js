@@ -30,3 +30,26 @@ app.get('/postback', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`📡 Postback-сервер запущен на порту ${PORT}`));
+
+
+app.get('/postback', (req, res) => {
+  const subid = req.query.subid;
+  const event = req.query.event;
+
+  if (!subid || event !== 'registration') {
+    return res.status(400).send('Invalid postback');
+  }
+
+  // помечаем пользователя как подтверждённого
+  if (users[subid]) {
+    users[subid].confirmed = true;
+    saveUsers();
+    bot.sendMessage(subid, '🎉 Спасибо за регистрацию! Доступ к сигналам открыт ✅');
+  } else {
+    users[subid] = { confirmed: true };
+    saveUsers();
+    bot.sendMessage(subid, '🎉 Спасибо за регистрацию! Доступ к сигналам открыт ✅');
+  }
+
+  res.status(200).send('OK');
+});
