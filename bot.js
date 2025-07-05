@@ -1,72 +1,31 @@
-const TelegramBot = require('node-telegram-bot-api');
-const fs = require('fs');
-const cron = require('node-cron');
+function generateCrash() {
+  const chance = Math.random();
 
-const token = '8186553250:AAEHCZd02dG6dNjQDUNMrRq9ohaNbdezg7A'; 
-const bot = new TelegramBot(token, { polling: true });
-
-let users = {};
-try {
-  users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-} catch (e) {
-  users = {};
+  if (chance < 0.9) {
+    // 90% — значение до 10
+    return (Math.random() * 9 + 1).toFixed(2);  // от 1 до 10
+  } else {
+    // 10% — значение от 10 до 100
+    return (Math.random() * 90 + 10).toFixed(2); // от 10 до 100
+  }
 }
 
-function saveUsers() {
-  fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
-}
-
-function sendSignal(chatId) {
-  const signals = [
-    '📊 Сигнал: поставь ставку через 1 игру!',
-    '🚀 Жди — скоро будет заход!',
-    '🎯 Ставь после зелёного!',
-    '🔥 Пропусти 2 раунда, потом ставь!'
-  ];
-  const signal = signals[Math.floor(Math.random() * signals.length)];
-  bot.sendMessage(chatId, signal);
-}
-
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, '👋 Ты уже зарегистрировался в 1win по моей ссылке?', {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '✅ Да, я зарегистрировался', callback_data: 'registered' }],
-        [{ text: '❌ Нет, я ещё не зарегистрировался', callback_data: 'not_registered' }],
-      ]
-    }
+function main() {
+  console.log('💥 Lucky Jet Predictor Bot 💥');
+  const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
   });
-});
 
-bot.on('callback_query', (query) => {
-  const chatId = query.message.chat.id;
-  const data = query.data;
-
-  if (data === 'not_registered') {
-    const refLink = `https://1win.com/?open=register&partner=123456&subid=${chatId}`;
-    users[chatId] = { confirmed: false };
-    saveUsers();
-    bot.sendMessage(chatId, `🔗 Зарегистрируйся по ссылке: \n${refLink}\n\nКак только зарегистрируешься, я это увижу автоматически 😉`);
+  function ask() {
+    readline.question('Нажми Enter, чтобы предсказать следующий коэффициент... ', () => {
+      const prediction = generateCrash();
+      console.log(`🎯 Предсказание: ${prediction}x\n`);
+      ask();
+    });
   }
 
-  if (data === 'registered') {
-    if (users[chatId]?.confirmed) {
-      bot.sendMessage(chatId, '✅ Ты уже подтверждён! Готов получать сигналы!');
-    } else {
-      bot.sendMessage(chatId, '🔄 Мы проверим твою регистрацию по ссылке');
-    }
-  }
+  ask();
+}
 
-  bot.answerCallbackQuery(query.id);
-});
-
-cron.schedule('*/5 * * * *', () => {
-  for (const chatId in users) {
-    if (users[chatId].confirmed) {
-      sendSignal(chatId);
-    }
-  }
-});
-
-module.exports = { bot, users, saveUsers, sendSignal };
+main();
