@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
 const cron = require('node-cron');
 
-const token = 'ТВОЙ_ТОКЕН'; // вставь сюда свой токен
+const token = '8186553250:AAEHCZd02dG6dNjQDUNMrRq9ohaNbdezg7A'; 
 const bot = new TelegramBot(token, { polling: true });
 
 let users = {};
@@ -54,8 +54,7 @@ bot.on('callback_query', (query) => {
     if (users[chatId]?.confirmed) {
       bot.sendMessage(chatId, '✅ Ты уже подтверждён! Готов получать сигналы!');
     } else {
-      bot.sendMessage(chatId, '🔄 Мы проверим твою регистрацию по ссылке. Обычно это занимает 1–2 минуты.');
-      // Можно здесь добавить проверку через setTimeout, если хочешь
+      bot.sendMessage(chatId, '🔄 Мы проверим твою регистрацию по ссылке');
     }
   }
 

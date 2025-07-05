@@ -40,7 +40,6 @@ app.get('/postback', (req, res) => {
     return res.status(400).send('Invalid postback');
   }
 
-  // помечаем пользователя как подтверждённого
   if (users[subid]) {
     users[subid].confirmed = true;
     saveUsers();
